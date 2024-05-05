@@ -1,3 +1,6 @@
+# Pepo changes
+Requires superwow, fixes saving action sets.
+
 # SimpleActionSets
 Save action bars as sets that can be swapped out.
 

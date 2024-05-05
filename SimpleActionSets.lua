@@ -1494,11 +1494,67 @@ function SAS_FindMacro(name, texture, macro)
 	return bestguess;
 end
 
+function SAS_GetActionInfoNoSuperWoW(id, quick)
+	-- Scans an action button to attempt to determine if it's a spell, macro, or item
+	SASToolTip:SetAction(id);
+	local name = SASToolTipTextLeft1:GetText();
+	local rank, macro, link;
+	local texture = GetActionTexture(id);
+
+	local count = GetActionCount(id);
+
+	if (name and name ~= "") then
+		if (SASToolTipTextRight1:IsShown()) then
+			rank = tRank(SASToolTipTextRight1:GetText())
+		end
+
+		local spellNum = SAS_FindSpell(name, rank);
+		if (spellNum) then
+			-- is ActionButton a spell
+			texture = GetSpellTexture(spellNum, BOOKTYPE_SPELL); -- auras don't have correct texture on action bar
+		elseif (GetActionText(id)) then
+			-- is ActionButton a macro
+			macro = GetMacroIndexByName(name); -- will find first macro with name by creation date
+		else
+			-- is ActionButton an item
+			if (quick) then
+				-- avoid slow item check
+				link = "?";
+			else
+				if (count > 0) then
+					link = SAS_ItemLink(name);
+					if (not link) then
+						SASDebug("|wItem " .. name .. " on action button " .. id .. " not found.");
+					end
+				else
+					SASDebug("|wItem " .. name .. " on action button " .. id .. " is an item not on this character.");
+					link = SAS_CheckItemDBs(name);
+				end
+			end
+		end
+
+		return name, texture, rank, link, macro; --{ name, rank, macro, link, texture };
+
+	elseif (SAS_Saved[PlrName]["MissingItems"] and SAS_Saved[PlrName]["MissingItems"][id]) then
+		name, texture, rank, link = SAS_ParseActionInfo(SAS_Saved[PlrName]["MissingItems"][id]);
+		if (link == "?") then
+			link = SAS_CheckItemDBs(name);
+		end
+		return name, texture, rank, link, macro;
+	else
+		SASDebug("|wAction " .. id .. " HasAction() but doesn't have anything in it.");
+	end
+end
+
 function SAS_GetActionInfo(id, quick)
 	-- Scans an action button to attempt to determine if it's a spell, macro, or item
 	if (HasAction(id)) then
-		-- name will be nil if it's not a macro but type will always have a value
+		-- name will be nil if it's not a macro but type will always have a value if using superwow
 		local name, actionType = GetActionText(id);
+		if not actionType then
+			-- call original GetActionInfo
+			return SAS_GetActionInfoNoSuperWoW(id, quick);
+		end
 		local rank, macro, link;
 
 		local texture = GetActionTexture(id);

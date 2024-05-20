@@ -2067,6 +2067,11 @@ function SAS_Console(msg)
 		else
 			SASPrint(string.gsub(SAS_TEXT_CONSOLE_NOVALID, "%%s", set));
 		end
+	elseif (strlower(string.sub(msg, 1, 11)) == "savecurrent") then
+		local set = SAS_GetCurrentSet();
+		if (set) then
+			SAS_SaveSet(set);
+		end
 	elseif (strlower(string.sub(msg, 1, 4)) == "save") then
 		local set = string.sub(msg, 6);
 		if (set) then

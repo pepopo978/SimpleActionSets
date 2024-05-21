@@ -33,8 +33,8 @@ local IconPath = "Interface\\Icons\\";
 -- Table used to track what's on the cursor
 SAS_SavedPickup = {}; -- name, rank, macro, link, texture
 
--- Brainwasher choice
-local washer_choice = nil
+-- Brainwasher choice tracker, non-local as hooks works with it
+SAS_washer_choice = nil
 
 ------------------------------
 -- SAS Main Frame functions --
@@ -71,24 +71,6 @@ function SASMain_Toggle()
 	end
 end
 
--- gossip hook
-local original_GossipTitleButton_OnClick = GossipTitleButton_OnClick
-function SAS_GossipTitleButton_OnClick()
-	if this.type ~= "Available" and this.type ~= "Active" and GossipFrameNpcNameText:GetText() == "Goblin Brainwashing Device" then
-		local action_text = this:GetText()
-		local _,_,save_spec = string.find(action_text,"Save (%d+).. Specialization")
-		local _,_,load_spec = string.find(action_text,"Activate (%d+).. Specialization")
-		if save_spec then
-			washer_choice = { save = save_spec }
-		elseif load_spec then
-			washer_choice = { load = load_spec }
-		end
-	end
-	original_GossipTitleButton_OnClick()
-end
-GossipTitleButton_OnClick = SAS_GossipTitleButton_OnClick
-
-
 -- timer to apply bars after spec-change
 local timer = CreateFrame("Frame")
 local elapsed = 0
@@ -106,18 +88,18 @@ function SASFrame_Event()
 		if not SAS_Saved then SAS_Saved = {} end
   elseif event == "PLAYER_ENTERING_WORLD" then
 	  this:SetOwner(WorldFrame, "ANCHOR_NONE")
-	elseif event == "GOSSIP_CLOSED" and washer_choice then
-		if washer_choice.save then
-			SAS_SaveSet("Brainwasher"..washer_choice.save)
-			washer_choice = nil
-		elseif washer_choice.load then
-			local set = "Brainwasher"..washer_choice.load
+	elseif event == "GOSSIP_CLOSED" and SAS_washer_choice then
+		if SAS_washer_choice.save then
+			SAS_SaveSet("Brainwasher"..SAS_washer_choice.save)
+			SAS_washer_choice = nil
+		elseif SAS_washer_choice.load then
+			local set = "Brainwasher"..SAS_washer_choice.load
 			if not SAS_SetExists(set) then
 				SAS_SaveSet(set)
 			end
 			-- change specs, then update bars after so the spells exist
 			timer:SetScript("OnUpdate",function () SetDelayedChange(set) end)
-			washer_choice = nil
+			SAS_washer_choice = nil
 		end
   end
 end

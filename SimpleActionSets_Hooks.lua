@@ -211,3 +211,23 @@ function SAS_SetAction( this, id )
 	return SAS_original_SetAction( this, id );
 end
 GameTooltip.SetAction = SAS_SetAction;
+
+-------------------------------------------
+-- Hook function for brainwasher user    --
+-------------------------------------------
+
+SAS_original_GossipTitleButton_OnClick = GossipTitleButton_OnClick
+function SAS_GossipTitleButton_OnClick()
+	if this.type ~= "Available" and this.type ~= "Active" and GossipFrameNpcNameText:GetText() == "Goblin Brainwashing Device" then
+		local action_text = this:GetText()
+		local _,_,save_spec = string.find(action_text,"Save (%d+).. Specialization")
+		local _,_,load_spec = string.find(action_text,"Activate (%d+).. Specialization")
+		if save_spec then
+			SAS_washer_choice = { save = save_spec }
+		elseif load_spec then
+			SAS_washer_choice = { load = load_spec }
+		end
+	end
+	SAS_original_GossipTitleButton_OnClick()
+end
+GossipTitleButton_OnClick = SAS_GossipTitleButton_OnClick

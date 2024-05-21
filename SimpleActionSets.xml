@@ -350,9 +350,11 @@ C:\Projects\WoW\Bin\Interface\FrameXML\UI.xsd">
 		<Scripts>
 			<OnLoad>
 				this:RegisterEvent("PLAYER_ENTERING_WORLD");
+				this:RegisterEvent("ADDON_LOADED");
+				this:RegisterEvent("GOSSIP_CLOSED");
 			</OnLoad>
 			<OnEvent>
-				this:SetOwner(WorldFrame, "ANCHOR_NONE");
+			  SASFrame_Event();
 			</OnEvent>
 		</Scripts>
 	</GameTooltip>

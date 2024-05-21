@@ -1,5 +1,6 @@
-# Pepo changes
-Requires superwow, fixes saving action sets.
+# Weird Vibes changes
+* Compatable with superwow, fixes saving action sets. -Pepo
+* Sets swap automatically when using Goblin Brainwasher. -Ehawne
 
 # SimpleActionSets
 Save action bars as sets that can be swapped out.

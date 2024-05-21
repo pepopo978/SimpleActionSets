@@ -80,12 +80,11 @@ function SAS_GossipTitleButton_OnClick()
 		local _,_,load_spec = string.find(action_text,"Activate (%d+).. Specialization")
 		if save_spec then
 			washer_choice = { save = save_spec }
-			original_GossipTitleButton_OnClick()
 		elseif load_spec then
 			washer_choice = { load = load_spec }
-			original_GossipTitleButton_OnClick()
 		end
 	end
+	original_GossipTitleButton_OnClick()
 end
 GossipTitleButton_OnClick = SAS_GossipTitleButton_OnClick
 

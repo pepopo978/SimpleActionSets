@@ -1591,7 +1591,8 @@ function SAS_GetActionInfo(id, quick)
 		if actionType == "SPELL" then
 			name,rank,texture = SpellInfo(identifier)
 		elseif actionType == "MACRO" then
-			name,texture,macro = GetMacroInfo(identifier)
+			name,texture,_ = GetMacroInfo(identifier)
+			macro = identifier
 		elseif actionType == "ITEM" then
 			name,link = GetItemInfo("item:"..identifier)
 		end

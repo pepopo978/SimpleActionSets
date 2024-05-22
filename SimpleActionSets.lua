@@ -1561,9 +1561,12 @@ function SAS_GetActionInfo(id, quick)
 
 		if actionType then
 			if actionType == "MACRO" then
-				macro = GetMacroIndexByName(name);
-				if not macro then
-					SASDebug("|wMacro " .. name .. " on action button " .. id .. " not found.");
+				-- deleted macros no longer have a name I think
+				if name then
+					macro = GetMacroIndexByName(name);
+					if not macro then
+						SASDebug("|wMacro " .. name .. " on action button " .. id .. " not found.");
+					end
 				end
 			else
 				SASToolTip:SetAction(id);

@@ -116,7 +116,6 @@ function SASFrame_Event()
 
 				local _,_,load_spec,mod,ta1,ta2,ta3 = string.find(titleButton:GetText(),"Activate (%d+)(..) Specialization %((%d+)/(%d+)/(%d+)%)")
 				if ta1 and ta1 == tostring(t1) and ta2 == tostring(t2) and ta3 == tostring(t3) then
-					print("waf")
 					titleButton:SetText(format("Activate %d%s Specialization (%s/%s/%s) - ACTIVE TALENTS",load_spec,mod,t1,t2,t3))
 				end
 			end

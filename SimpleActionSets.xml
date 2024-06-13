@@ -352,6 +352,7 @@ C:\Projects\WoW\Bin\Interface\FrameXML\UI.xsd">
 				this:RegisterEvent("PLAYER_ENTERING_WORLD");
 				this:RegisterEvent("ADDON_LOADED");
 				this:RegisterEvent("GOSSIP_CLOSED");
+				this:RegisterEvent("GOSSIP_SHOW");
 			</OnLoad>
 			<OnEvent>
 			  SASFrame_Event();

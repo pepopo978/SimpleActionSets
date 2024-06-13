@@ -88,6 +88,39 @@ function SASFrame_Event()
 		if not SAS_Saved then SAS_Saved = {} end
   elseif event == "PLAYER_ENTERING_WORLD" then
 	  this:SetOwner(WorldFrame, "ANCHOR_NONE")
+	elseif event == "GOSSIP_SHOW" and GossipFrameNpcNameText:GetText() == "Goblin Brainwashing Device" then
+
+		local current_wash = SAS_GetCurrentSet()
+		if current_wash then
+		  _,_,current_wash = string.find(SAS_GetCurrentSet(),"^Brainwasher(%d+)$")
+			current_wash = tonumber(current_wash) -- get current brainwasher spec
+		end
+		-- if not current_wash then return end
+
+		-- scan talent points to determine current active spec
+
+		local titleButton;
+		local _,_,t1 = GetTalentTabInfo(1)
+		local _,_,t2 = GetTalentTabInfo(2)
+		local _,_,t3 = GetTalentTabInfo(3)
+    for i=1, NUMGOSSIPBUTTONS do
+      titleButton = getglobal("GossipTitleButton" .. i)
+
+      if titleButton:IsVisible() then
+				local _,_,save_spec,mod = string.find(titleButton:GetText(),"Save (%d+)(..) Specialization")
+				local s = tonumber(save_spec)
+
+        if s and current_wash and s == current_wash then
+					titleButton:SetText(format("Save %d%s Specialization - ACTIVE ACTIONBARS", s, mod))
+				end
+
+				local _,_,load_spec,mod,ta1,ta2,ta3 = string.find(titleButton:GetText(),"Activate (%d+)(..) Specialization %((%d+)/(%d+)/(%d+)%)")
+				if ta1 and ta1 == tostring(t1) and ta2 == tostring(t2) and ta3 == tostring(t3) then
+					print("waf")
+					titleButton:SetText(format("Activate %d%s Specialization (%s/%s/%s) - ACTIVE TALENTS",load_spec,mod,t1,t2,t3))
+				end
+			end
+    end
 	elseif event == "GOSSIP_CLOSED" and SAS_washer_choice then
 		if SAS_washer_choice.save then
 			SAS_SaveSet("Brainwasher"..SAS_washer_choice.save)
@@ -1587,7 +1620,7 @@ function SAS_GetActionInfo(id, quick)
 	local count = GetActionCount(id);
 	local name,actionType,identifier = GetActionText(id);
 
-	if actionType then
+	if actionType and identifier then
 		if actionType == "SPELL" then
 			name,rank,texture = SpellInfo(identifier)
 		elseif actionType == "MACRO" then

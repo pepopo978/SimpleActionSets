@@ -33,6 +33,8 @@ local IconPath = "Interface\\Icons\\";
 -- Table used to track what's on the cursor
 SAS_SavedPickup = {}; -- name, rank, macro, link, texture
 
+-- Brainwasher choice tracker, non-local as hooks works with it
+SAS_washer_choice = nil
 
 ------------------------------
 -- SAS Main Frame functions --
@@ -69,6 +71,76 @@ function SASMain_Toggle()
 	end
 end
 
+-- timer to apply bars after spec-change
+local timer = CreateFrame("Frame")
+local elapsed = 0
+function SetDelayedChange(set)
+	elapsed = elapsed + arg1
+	if elapsed > 1 then
+		elapsed = 0
+		this:SetScript("OnUpdate", nil)
+		SAS_SwapSet(set);
+	end
+end
+
+function SASFrame_Event()
+	if event == "ADDON_LOADED" and arg1 == "SimpleActionSets" then
+		if not SAS_Saved then
+			SAS_Saved = {}
+		end
+	elseif event == "PLAYER_ENTERING_WORLD" then
+		this:SetOwner(WorldFrame, "ANCHOR_NONE")
+	elseif event == "GOSSIP_SHOW" and GossipFrameNpcNameText:GetText() == "Goblin Brainwashing Device" then
+
+		local current_wash = SAS_GetCurrentSet()
+		if current_wash then
+			_, _, current_wash = string.find(SAS_GetCurrentSet(), "^Brainwasher(%d+)$")
+			current_wash = tonumber(current_wash) -- get current brainwasher spec
+		end
+		-- if not current_wash then return end
+
+		-- scan talent points to determine current active spec
+
+		local titleButton;
+		local _, _, t1 = GetTalentTabInfo(1)
+		local _, _, t2 = GetTalentTabInfo(2)
+		local _, _, t3 = GetTalentTabInfo(3)
+		for i = 1, NUMGOSSIPBUTTONS do
+			titleButton = getglobal("GossipTitleButton" .. i)
+
+			if titleButton:IsVisible() then
+				local _, _, save_spec, mod = string.find(titleButton:GetText(), "Save (%d+)(..) Specialization")
+				local s = tonumber(save_spec)
+
+				if s and current_wash and s == current_wash then
+					titleButton:SetText(format("Save %d%s Specialization - ACTIVE ACTIONBARS", s, mod))
+					GossipResize(titleButton)
+				end
+
+				local _, _, load_spec, mod, ta1, ta2, ta3 = string.find(titleButton:GetText(), "Activate (%d+)(..) Specialization %((%d+)/(%d+)/(%d+)%)")
+				if ta1 and ta1 == tostring(t1) and ta2 == tostring(t2) and ta3 == tostring(t3) then
+					titleButton:SetText(format("Activate %d%s Specialization (%s/%s/%s) - ACTIVE TALENTS", load_spec, mod, t1, t2, t3))
+					GossipResize(titleButton)
+				end
+			end
+		end
+	elseif event == "GOSSIP_CLOSED" and SAS_washer_choice then
+		if SAS_washer_choice.save then
+			SAS_SaveSet("Brainwasher" .. SAS_washer_choice.save)
+			SAS_washer_choice = nil
+		elseif SAS_washer_choice.load then
+			local set = "Brainwasher" .. SAS_washer_choice.load
+			if not SAS_SetExists(set) then
+				SAS_SaveSet(set)
+			end
+			-- change specs, then update bars after so the spells exist
+			timer:SetScript("OnUpdate", function()
+				SetDelayedChange(set)
+			end)
+			SAS_washer_choice = nil
+		end
+	end
+end
 
 -----------------------------
 -- Actions Frame functions --
@@ -1309,7 +1381,7 @@ function SAS_BuildActionInfo(...)
 	end
 	local string = "";
 	for i = 1, arg.n do
-		string = string .. (arg[i] or "") .. "·";
+		string = string .. (arg[i] or "") .. "Â·";
 	end
 	return string;
 end
@@ -1334,7 +1406,17 @@ function SAS_ParseActionInfo(action, ...)
 		return action;
 	end
 	local a = {};
-	for val in string.gfind(action, "(.-)·") do
+	local actionParts = {}
+
+	-- look for UTF-8 dot as this file is UTF-8
+	if string.find(action, "Â·") then
+		actionParts = SAS_ParseActionInfoUTF8(action);
+	else
+		-- WTF data must be in ANSI still
+		actionParts = SAS_ParseActionInfoAnsi(action);
+	end
+
+	for val in actionParts do
 		tinsert(a, val);
 	end
 	for k, v in a do
@@ -1548,70 +1630,30 @@ end
 
 function SAS_GetActionInfo(id, quick)
 	-- Scans an action button to attempt to determine if it's a spell, macro, or item
-	if (HasAction(id)) then
-		-- name will be nil if it's not a macro but type will always have a value if using superwow
-		local name, actionType = GetActionText(id);
-		if not actionType then
-			-- call original GetActionInfo
-			return SAS_GetActionInfoNoSuperWoW(id, quick);
+	local name, rank, texture, macro, link
+	texture = GetActionTexture(id);
+	local count = GetActionCount(id);
+	local name, actionType, identifier = GetActionText(id);
+
+	if actionType and identifier then
+		if actionType == "SPELL" then
+			name, rank, texture = SpellInfo(identifier)
+		elseif actionType == "MACRO" then
+			name, texture, _ = GetMacroInfo(identifier)
+			macro = identifier
+		elseif actionType == "ITEM" then
+			name, link = GetItemInfo("item:" .. identifier)
 		end
-		local rank, macro, link;
-
-		local texture = GetActionTexture(id);
-
-		if actionType then
-			if actionType == "MACRO" then
-				-- deleted macros no longer have a name I think
-				if name then
-					macro = GetMacroIndexByName(name);
-					if not macro then
-						SASDebug("|wMacro " .. name .. " on action button " .. id .. " not found.");
-					end
-				end
-			else
-				SASToolTip:SetAction(id);
-				name = SASToolTipTextLeft1:GetText();
-
-				if actionType == "SPELL" then
-					if (SASToolTipTextRight1:IsShown()) then
-						rank = tRank(SASToolTipTextRight1:GetText())
-					end
-
-					local spellNum = SAS_FindSpell(name, rank);
-					if spellNum then
-						-- is ActionButton a spell
-						texture = GetSpellTexture(spellNum, BOOKTYPE_SPELL); -- auras don't have correct texture on action bar
-					end
-				elseif actionType == "ITEM" then
-					local count = GetActionCount(id);
-					-- is ActionButton an item
-					if (quick) then
-						-- avoid slow item check
-						link = "?";
-					else
-						if (count > 0) then
-							link = SAS_ItemLink(name);
-							if (not link) then
-								SASDebug("|wItem " .. name .. " on action button " .. id .. " not found.");
-							end
-						else
-							SASDebug("|wItem " .. name .. " on action button " .. id .. " is an item not on this character.");
-							link = SAS_CheckItemDBs(name);
-						end
-					end
-				end
-			end
-
-			return name, texture, rank, link, macro; --{ name, rank, macro, link, texture };
-		elseif (SAS_Saved[PlrName]["MissingItems"] and SAS_Saved[PlrName]["MissingItems"][id]) then
-			name, texture, rank, link = SAS_ParseActionInfo(SAS_Saved[PlrName]["MissingItems"][id]);
-			if (link == "?") then
-				link = SAS_CheckItemDBs(name);
-			end
-			return name, texture, rank, link, macro;
-		else
-			SASDebug("|wAction " .. id .. " HasAction() but doesn't have anything in it.");
-		end
+		return name, texture, rank, link, macro
+	elseif (SAS_Saved[PlrName]["MissingItems"] and SAS_Saved[PlrName]["MissingItems"][id]) then
+		name, texture, rank, link = SAS_ParseActionInfo(SAS_Saved[PlrName]["MissingItems"][id])
+		link = (link == "?") and SAS_CheckItemDBs(name) or link
+		return name, texture, rank, link, macro
+	elseif HasAction(id) and not actionType then
+		-- no superwow
+		return SAS_GetActionInfoNoSuperWoW(id, quick)
+	else
+		SASDebug("|wAction " .. id .. " HasAction() but doesn't have anything in it.");
 	end
 end
 
@@ -2278,7 +2320,7 @@ function SAS_CreateUniqueMacros()
 			if ( name ) then
 				if ( all[name] ) then
 					all[name] = all[name] + 1;
-					EditMacro(i, name.."·");
+					EditMacro(i, name.."Â·");
 					return iterateMacros();
 				else
 					all[name] = 0;
@@ -2299,5 +2341,5 @@ function SAS_StripUniqueMacros()
 end
 
 function SAS_StripUniqueMacroName(name)
-	return string.gsub(name, "(.-)·+", "%1");
+	return string.gsub(name, "(.-)Â·+", "%1");
 end]]

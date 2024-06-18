@@ -1,10 +1,5 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
 C:\Projects\WoW\Bin\Interface\FrameXML\UI.xsd">
-
-	<Script file="localization.lua"/>
-	<Script file="SimpleActionSets.lua"/>
-	<Script file="SimpleActionSets_Hooks.lua"/>
-	
 	<Button name="SASMenuButtonTemplate" inherits="UIPanelButtonTemplate" virtual="true">
 		<Size>
 			<AbsDimension x="100" y="21"/>
@@ -350,9 +345,12 @@ C:\Projects\WoW\Bin\Interface\FrameXML\UI.xsd">
 		<Scripts>
 			<OnLoad>
 				this:RegisterEvent("PLAYER_ENTERING_WORLD");
+				this:RegisterEvent("ADDON_LOADED");
+				this:RegisterEvent("GOSSIP_CLOSED");
+				this:RegisterEvent("GOSSIP_SHOW");
 			</OnLoad>
 			<OnEvent>
-				this:SetOwner(WorldFrame, "ANCHOR_NONE");
+			  SASFrame_Event();
 			</OnEvent>
 		</Scripts>
 	</GameTooltip>

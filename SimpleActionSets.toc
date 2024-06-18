@@ -4,4 +4,9 @@
 ## Title: SimpleActionSets
 ## Notes: Allows all existing actions to be saved to a set which can be changed to later.
 ## SavedVariables: SAS_Saved, SAS_BackUp, SAS_POS, SAS_OFFSET
+localization.lua
+SimpleActionSets_AnsiReader.lua
+SimpleActionSets_UTF8Reader.lua
+SimpleActionSets.lua
+SimpleActionSets_Hooks.lua
 SimpleActionSets.xml

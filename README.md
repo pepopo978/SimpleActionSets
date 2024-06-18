@@ -1,6 +1,6 @@
 # Weird Vibes changes
 * Compatable with superwow, fixes saving action sets. -Pepo
-* Sets swap automatically when using Goblin Brainwasher. -Ehawne
+* Sets swap automatically when using Goblin Brainwasher. Saving using the brainwasher will save a corresponding set, loading using the brainwasher will load the matching set. -Ehawne
 * Not currently compatible with SuperMacro. -Ehawne
 
 # SimpleActionSets

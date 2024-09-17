@@ -1,4 +1,4 @@
-## Interface: 11000
+## Interface: 12000
 ## Version: 0.47b
 ## Author: Brodrick (aka Kirov)
 ## Title: SimpleActionSets

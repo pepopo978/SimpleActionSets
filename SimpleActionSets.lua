@@ -701,7 +701,7 @@ function SASActionButton_OnClick(button)
 			-- Cursor fake drag is holding an action
 			SASDebug("SASActionButton_OnClick getting fake drag action " .. SAS_ParseActionInfo(SASFakeDragFrame.Action, 1));
 			if (SAS_Temp[bar] and SAS_Temp[bar][id]) then
-				LocalSavedAction = SAS_CopyTable(SAS_Temp[bar][id]);
+				LocalSavedAction = SAS_Temp[bar][id];
 			end
 			SAS_Temp[bar][id] = SASFakeDrag_Drop(1)
 			SASActions_UpdateAction(bar, id);

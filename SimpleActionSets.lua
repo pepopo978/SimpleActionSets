@@ -701,7 +701,11 @@ function SASActionButton_OnClick(button)
 			-- Cursor fake drag is holding an action
 			SASDebug("SASActionButton_OnClick getting fake drag action " .. SAS_ParseActionInfo(SASFakeDragFrame.Action, 1));
 			if (SAS_Temp[bar] and SAS_Temp[bar][id]) then
-				LocalSavedAction = SAS_CopyTable(SAS_Temp[bar][id]);
+				if type(SAS_Temp[bar][id]) == "table" then
+					LocalSavedAction = SAS_CopyTable(SAS_Temp[bar][id]);
+				else
+					LocalSavedAction = SAS_Temp[bar][id];
+				end
 			end
 			SAS_Temp[bar][id] = SASFakeDrag_Drop(1)
 			SASActions_UpdateAction(bar, id);
@@ -1459,7 +1463,7 @@ function SAS_ItemName(item)
 	end
 end
 function SAS_FindName(item)
-	-- Find an item's name from it's item link
+	-- Find an item's name from its item link
 	if (item) then
 		for name in string.gfind(item, "%[(.+)%]") do
 			return name;

@@ -62,7 +62,12 @@ function SAS_PickupContainerItem( bag, slot )
 			local texture = GetContainerItemInfo( bag, slot );
 			SAS_SavedPickup = SAS_BuildActionInfo( name, texture, nil, link );
 			SASFakeDrag_Drop(1);
-			SASDebug("Pick up container item "..name.." from "..bag..", "..slot );
+
+			if name then
+				SASDebug("Pick up container item " .. name .. " from " .. bag .. ", " .. slot);
+			else
+				DEFAULT_CHAT_FRAME:AddMessage("SAS: Unable to determine name of item in inventory with itemLink: " .. itemLink, 1, 0.5, 0);
+			end
 		end
 	end
 	SAS_original_PickupContainerItem( bag, slot );

@@ -1,0 +1,32 @@
+<Bindings>
+    <Binding name="SAS_SET1" header="SAS_TITLE">
+        SAS_SwapSet(SAS_GetSetByName(1));
+    </Binding>
+    <Binding name="SAS_SET2">
+        SAS_SwapSet(SAS_GetSetByName(2));
+    </Binding>
+    <Binding name="SAS_SET3">
+        SAS_SwapSet(SAS_GetSetByName(3));
+    </Binding>
+    <Binding name="SAS_SET4">
+        SAS_SwapSet(SAS_GetSetByName(4));
+    </Binding>
+    <Binding name="SAS_SET5">
+        SAS_SwapSet(SAS_GetSetByName(5));
+    </Binding>
+    <Binding name="SAS_SET6">
+        SAS_SwapSet(SAS_GetSetByName(6));
+    </Binding>
+    <Binding name="SAS_SET7">
+        SAS_SwapSet(SAS_GetSetByName(7));
+    </Binding>
+    <Binding name="SAS_SET8">
+        SAS_SwapSet(SAS_GetSetByName(8));
+    </Binding>
+    <Binding name="SAS_SET9">
+        SAS_SwapSet(SAS_GetSetByName(9));
+    </Binding>
+    <Binding name="SAS_SET10">
+        SAS_SwapSet(SAS_GetSetByName(10));
+    </Binding>
+</Bindings>

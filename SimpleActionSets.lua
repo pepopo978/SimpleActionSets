@@ -2264,6 +2264,20 @@ function SAS_UpgradeSets()
 	end
 end
 
+------------------------------
+--- Key Bindings functions ---
+------------------------------
+function SAS_GetSetByName(index)
+    if (not SAS_Saved or not SAS_Saved[PlrName] or not SAS_Saved[PlrName]["s"]) then
+        return nil;
+    end
+    local list = {};
+    for k, v in SAS_Saved[PlrName]["s"] do
+        tinsert(list, k);
+    end
+    table.sort(list);
+    return list[index];
+end
 
 -- Unused code
 

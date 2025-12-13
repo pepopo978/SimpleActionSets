@@ -92,3 +92,20 @@ SAS_TITAN_ID = "SAS";
 SAS_TITAN_LABEL = "Current Set: ";
 SAS_TITAN_NA = "n/a";
 SAS_TITAN_HINT = "Hint: Left-click to open sets frame."
+
+
+----------------------
+-- Key Binding text --
+----------------------
+BINDING_HEADER_SAS_TITLE = "Simple Action Sets";
+
+BINDING_NAME_SAS_SET1 = "Simple Action Set 1";
+BINDING_NAME_SAS_SET2 = "Simple Action Set 2";
+BINDING_NAME_SAS_SET3 = "Simple Action Set 3";
+BINDING_NAME_SAS_SET4 = "Simple Action Set 4";
+BINDING_NAME_SAS_SET5 = "Simple Action Set 5";
+BINDING_NAME_SAS_SET6 = "Simple Action Set 6";
+BINDING_NAME_SAS_SET7 = "Simple Action Set 7";
+BINDING_NAME_SAS_SET8 = "Simple Action Set 8";
+BINDING_NAME_SAS_SET9 = "Simple Action Set 9";
+BINDING_NAME_SAS_SET10 = "Simple Action Set 10";

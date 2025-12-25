@@ -83,6 +83,19 @@ function SetDelayedChange(set)
 	end
 end
 
+-- timer to debounce inventory updates
+local inventoryTimer = CreateFrame("Frame")
+local inventoryElapsed = 0
+function UpdateInventoryDebounced()
+	inventoryElapsed = inventoryElapsed + arg1
+	if inventoryElapsed > 0.5 then
+		inventoryElapsed = 0
+		this:SetScript("OnUpdate", nil)
+		SAS_FindMissingItems();
+		SASActions_Display();
+	end
+end
+
 function SASFrame_Event()
 	if event == "ADDON_LOADED" and arg1 == "SimpleActionSets" then
 		if not SAS_Saved then
@@ -1001,8 +1014,9 @@ function SASMinimap_OnEvent()
 		end
 	elseif (event == "UNIT_INVENTORY_CHANGED" or event == "BAG_UPDATE") then
 		if (arg1 == "player" or tonumber(arg1)) then
-			SAS_FindMissingItems();
-			SASActions_Display();
+			inventoryTimer:SetScript("OnUpdate", function()
+				UpdateInventoryDebounced()
+			end)
 		end
 	elseif (event == "PLAYER_LOGOUT") then
 		if (not SAS_Saved["BackUp"]) then
